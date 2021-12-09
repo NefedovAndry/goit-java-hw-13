@@ -22,19 +22,21 @@ import java.util.List;
 
 class Main3 {
     public static void main(String[] args) throws IOException, InterruptedException {
-        GetAllTodos src = new GetAllTodos();
-        src.getAllOpenToDosByUserId(1);
+        TodosGetter src = new TodosGetter();
+        int userId = 1;
+        src.createJsonWithAllOpenToDosByUserId(userId);
     }
 }
 
-public class GetAllTodos {
+public class TodosGetter {
     HttpClient client = HttpClient.newHttpClient();
 
-    public void getAllOpenToDosByUserId(int userId) throws IOException, InterruptedException {
+    public void createJsonWithAllOpenToDosByUserId(int userId) throws IOException, InterruptedException {
         String allTodosJson = getAllTodosByUserId(userId);
-        List<ToDosJPH> allOpenTodos = getAllOpenToDos(getAllTodos(allTodosJson));
+        List<ToDosJPH> allOpenTodos = getOpenTodosFromJson(allTodosJson);
         String jsonFilePath = "src/main/resources/" + "user-" + userId + "-open_todos.json";
         createJsonWithTodos(allOpenTodos, jsonFilePath);
+        System.out.println("JSON filepath: " + jsonFilePath);
     }
 
     private String getAllTodosByUserId(int userId) throws IOException, InterruptedException {
@@ -47,23 +49,17 @@ public class GetAllTodos {
         return response.body();
     }
 
-    private ToDosJPH[] createTodosFromJson(String json) {
+    private List<ToDosJPH> getOpenTodosFromJson(String json) {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        return gson.fromJson(json, ToDosJPH[].class);
-    }
-
-    private List<ToDosJPH> getAllTodos(String jsonTodos) {
-        return new ArrayList<>(Arrays.asList(createTodosFromJson(jsonTodos)));
-    }
-
-    private List<ToDosJPH> getAllOpenToDos(List<ToDosJPH> todos) {
-        List<ToDosJPH> result = new ArrayList<>();
-        for (ToDosJPH element : todos) {
+        ToDosJPH[] todosArray = gson.fromJson(json, ToDosJPH[].class);
+        List<ToDosJPH> todosList = new ArrayList<>(Arrays.asList(todosArray));
+        List<ToDosJPH> openTodosList = new ArrayList<>();
+        for (ToDosJPH element : todosList) {
             if (!element.completed) {
-                result.add(element);
+                openTodosList.add(element);
             }
         }
-        return result;
+        return openTodosList;
     }
 
     private void createJsonWithTodos(List<ToDosJPH> todos, String jsonFilePath) {
@@ -76,28 +72,28 @@ public class GetAllTodos {
         }
     }
 
-}
+    class ToDosJPH {
+        int userId;
+        int id;
+        String title;
+        boolean completed;
 
-class ToDosJPH {
-    int userId;
-    int id;
-    String title;
-    boolean completed;
+        public ToDosJPH(int userId, int id, String title, boolean completed) {
+            this.userId = userId;
+            this.id = id;
+            this.title = title;
+            this.completed = completed;
+        }
 
-    public ToDosJPH(int userId, int id, String title, boolean completed) {
-        this.userId = userId;
-        this.id = id;
-        this.title = title;
-        this.completed = completed;
+        @Override
+        public String toString() {
+            return "ToDos{" +
+                    "userId=" + userId +
+                    ", id=" + id +
+                    ", title='" + title + '\'' +
+                    ", completed=" + completed +
+                    '}';
+        }
     }
 
-    @Override
-    public String toString() {
-        return "ToDos{" +
-                "userId=" + userId +
-                ", id=" + id +
-                ", title='" + title + '\'' +
-                ", completed=" + completed +
-                '}';
-    }
 }
