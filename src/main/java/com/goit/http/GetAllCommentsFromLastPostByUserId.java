@@ -41,7 +41,7 @@ class GetAllCommentsFromLastPostByUserId {
         createJsonWithComments(allComments, jsonFilePath);
     }
 
-    public String getPostsByUserId(int userId) throws IOException, InterruptedException {
+    private String getPostsByUserId(int userId) throws IOException, InterruptedException {
         String uri = "https://jsonplaceholder.typicode.com/users/" + userId + "/posts";
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(uri))
@@ -51,7 +51,7 @@ class GetAllCommentsFromLastPostByUserId {
         return response.body();
     }
 
-    List<String> findAllMatches(String text) {
+    private List<String> findAllMatches(String text) {
         List<String> matches = new ArrayList<>();
         Pattern pattern = Pattern.compile("\\\"id\": \\d+");
         Matcher matcher = pattern.matcher(text);
@@ -66,11 +66,11 @@ class GetAllCommentsFromLastPostByUserId {
         return Integer.parseInt(parts[1]);
     }
 
-    int getLastPostId(List<String> postsIds) {
+    private int getLastPostId(List<String> postsIds) {
         return findNumberFromString(postsIds.get(postsIds.size() - 1));
     }
 
-    String getAllCommentsByPostId(int postId) throws IOException, InterruptedException {
+    private String getAllCommentsByPostId(int postId) throws IOException, InterruptedException {
         String uri = "https://jsonplaceholder.typicode.com/posts/" + postId + "/comments";
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(uri))
@@ -80,7 +80,7 @@ class GetAllCommentsFromLastPostByUserId {
         return response.body();
     }
 
-    public void createJsonWithComments(String str, String jsonFilePath) {
+    private  void createJsonWithComments(String str, String jsonFilePath) {
         CommentJPH[] comments = createCommentsFromJson(str);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String outputString = gson.toJson(comments);
@@ -91,7 +91,7 @@ class GetAllCommentsFromLastPostByUserId {
         }
     }
 
-    public CommentJPH[] createCommentsFromJson(String json) {
+    private  CommentJPH[] createCommentsFromJson(String json) {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         return gson.fromJson(json, CommentJPH[].class);
     }
